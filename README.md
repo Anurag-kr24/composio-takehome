@@ -315,6 +315,12 @@ The useful system is therefore not an agent that confidently fills 100 rows. It 
 
 ## Take-home report
 
-The self-contained case study is available at:
+The self-contained case study is available here:
 
-    reports/case-study.html
+**[Live case study →](https://anurag-kr24.github.io/composio-takehome/)**
+
+The source HTML is also available in the repository:
+
+`reports/case-study.html`
+
+    
