@@ -87,8 +87,7 @@ For example:
     composio-takehome/
     ├── data/
     │   ├── raw/
-    │   │   ├── apps.json
-    │   │   └── research_evidence.json
+    │   │   └── apps.json
     │   ├── processed/
     │   │   └── first_pass.json
     │   └── verified/
@@ -236,6 +235,11 @@ Never commit `.env`.
 Produces:
 
     data/raw/research_evidence.json
+
+The raw evidence file is generated locally during research and is intentionally
+excluded from the public repository because fetched vendor documentation can
+contain credential-like examples. The processed and verified outputs are
+included for reproducibility and review.
 
 ### 2. Classify
 
