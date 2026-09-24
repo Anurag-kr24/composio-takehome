@@ -1,0 +1,1633 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Composio AI Product Ops Take-home — App Research Agent</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f6f8;color:#17191d;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.45}
+main{max-width:1400px;margin:auto;padding:48px 34px 80px}
+.hero{background:#111318;color:white;border-radius:24px;padding:42px;margin-bottom:24px}
+.kicker{font-size:13px;text-transform:uppercase;letter-spacing:.14em;opacity:.65;font-weight:700}
+h1{font-size:48px;line-height:1.02;margin:12px 0 18px;max-width:900px}
+h2{font-size:28px;margin:0 0 18px}
+h3{margin-bottom:8px}
+.lead{font-size:19px;max-width:850px;color:#cdd1d8}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}
+.card{background:white;border:1px solid #e2e5e9;border-radius:16px;padding:20px}
+.big{font-size:36px;font-weight:800}
+.muted{color:#6b7078}
+section{background:white;border:1px solid #e2e5e9;border-radius:20px;padding:28px;margin:20px 0}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.barrow{margin:12px 0}
+.barlabel{display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px}
+.bar{height:9px;background:#e8eaed;border-radius:20px;overflow:hidden}
+.bar i{display:block;height:100%;background:#20242b;border-radius:20px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{text-align:left;background:#f0f2f4;position:sticky;top:0}
+td,th{padding:10px 9px;border-bottom:1px solid #e6e8eb;vertical-align:top}
+.pill{display:inline-block;padding:3px 7px;border-radius:999px;background:#eef0f2;margin:1px;font-size:11px}
+.workflow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.step{padding:16px;border:1px solid #dddfe3;border-radius:14px;background:#fafafa}
+.num{font-weight:800;font-size:12px;color:#777}
+.insight{padding:16px;border-left:4px solid #20242b;background:#f7f7f8;border-radius:8px;margin:10px 0}
+.small{font-size:12px}
+a{color:#2358a6}
+footer{color:#777;font-size:12px;margin-top:30px}
+@media(max-width:900px){.grid,.cols,.workflow{grid-template-columns:1fr 1fr}h1{font-size:38px}}
+@media(max-width:600px){.grid,.cols,.workflow{grid-template-columns:1fr}main{padding:20px}}
+</style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+<div class="kicker">Composio · AI Product Ops Intern</div>
+<h1>Researching 100 apps with an evidence-first agent</h1>
+<p class="lead">
+A reproducible pipeline searched official developer sources, fetched evidence,
+classified auth/access/API/MCP/buildability, and then ran an independent
+20-app verification search pass. The key lesson: automated discovery is fast;
+verification is where the useful product signal appears.
+</p>
+</div>
+
+<div class="grid">
+<div class="card"><div class="muted">Apps researched</div><div class="big">100</div></div>
+<div class="card"><div class="muted">Categories</div><div class="big">10</div></div>
+<div class="card"><div class="muted">First-pass records</div><div class="big">100</div></div>
+<div class="card"><div class="muted">Verification sample</div><div class="big">20</div></div>
+</div>
+
+<section>
+<h2>Headline findings</h2>
+<div class="insight"><b>1. Self-serve dominates the first pass.</b> 79/100 were classified self-serve, but 17 remained unknown and 4 mixed. This is a first-pass signal, not a final ground-truth rate.</div>
+<div class="insight"><b>2. API breadth is the weakest automated field.</b> 42/100 were unknown and only 1 was classified broad. Independent verification immediately exposed false "unknown" cases: Shopify and Zendesk, for example, have extensive documented API surfaces.</div>
+<div class="insight"><b>3. MCP is increasingly common but evidence quality matters.</b> 39 apps had official-remote MCP evidence and 17 first-party MCP evidence in the first pass. "none_found" means no official evidence was found in the searched sources — not proof that an MCP does not exist.</div>
+<div class="insight"><b>4. Buildability is deliberately conservative.</b> 53 were "yes_with_constraints"; 47 stayed unknown because missing auth/API evidence prevented a defensible buildability conclusion.</div>
+</section>
+
+<section>
+<h2>First-pass distribution</h2>
+<div class="cols">
+<div>
+<h3>Credential access</h3>
+
+    <div class="barrow">
+      <div class="barlabel"><span>self_serve</span><b>79</b></div>
+      <div class="bar"><i style="width:79%"></i></div>
+    </div>
+    
+    <div class="barrow">
+      <div class="barlabel"><span>unknown</span><b>17</b></div>
+      <div class="bar"><i style="width:17%"></i></div>
+    </div>
+    
+    <div class="barrow">
+      <div class="barlabel"><span>mixed</span><b>4</b></div>
+      <div class="bar"><i style="width:4%"></i></div>
+    </div>
+    
+</div>
+<div>
+<h3>Buildability</h3>
+
+    <div class="barrow">
+      <div class="barlabel"><span>yes_with_constraints</span><b>53</b></div>
+      <div class="bar"><i style="width:53%"></i></div>
+    </div>
+    
+    <div class="barrow">
+      <div class="barlabel"><span>unknown</span><b>47</b></div>
+      <div class="bar"><i style="width:47%"></i></div>
+    </div>
+    
+</div>
+<div>
+<h3>MCP evidence</h3>
+
+    <div class="barrow">
+      <div class="barlabel"><span>official_remote</span><b>39</b></div>
+      <div class="bar"><i style="width:39%"></i></div>
+    </div>
+    
+    <div class="barrow">
+      <div class="barlabel"><span>none_found</span><b>44</b></div>
+      <div class="bar"><i style="width:44%"></i></div>
+    </div>
+    
+    <div class="barrow">
+      <div class="barlabel"><span>official_first_party</span><b>17</b></div>
+      <div class="bar"><i style="width:17%"></i></div>
+    </div>
+    
+</div>
+<div>
+<h3>API breadth</h3>
+
+    <div class="barrow">
+      <div class="barlabel"><span>specialized</span><b>40</b></div>
+      <div class="bar"><i style="width:40%"></i></div>
+    </div>
+    
+    <div class="barrow">
+      <div class="barlabel"><span>broad</span><b>1</b></div>
+      <div class="bar"><i style="width:1%"></i></div>
+    </div>
+    
+    <div class="barrow">
+      <div class="barlabel"><span>unknown</span><b>42</b></div>
+      <div class="bar"><i style="width:42%"></i></div>
+    </div>
+    
+    <div class="barrow">
+      <div class="barlabel"><span>moderate</span><b>17</b></div>
+      <div class="bar"><i style="width:17%"></i></div>
+    </div>
+    
+</div>
+</div>
+</section>
+
+<section>
+<h2>Agent / research workflow</h2>
+<div class="workflow">
+<div class="step"><div class="num">01 · SEED</div><h3>100 apps</h3><p>Canonical assignment list with category and official-domain hints.</p></div>
+<div class="step"><div class="num">02 · SEARCH</div><h3>5 evidence areas</h3><p>Description, authentication, credential access, API, MCP.</p></div>
+<div class="step"><div class="num">03 · FETCH</div><h3>Official sources</h3><p>Search citations are discovery; official-domain pages are promoted as evidence.</p></div>
+<div class="step"><div class="num">04 · CLASSIFY</div><h3>Structured record</h3><p>Pydantic schema produces reproducible classifications and uncertainty.</p></div>
+<div class="step"><div class="num">05 · VERIFY</div><h3>20-app second pass</h3><p>Two apps per category are independently re-searched to expose misses.</p></div>
+</div>
+</section>
+
+<section>
+<h2>Verification: what changed the system</h2>
+<p>
+The independent verification pass covered <b>20</b> apps, two per category.
+It was intentionally separated from the first-pass classifier.
+</p>
+<div class="insight">
+<b>Observed failure mode:</b> API breadth was systematically under-detected.
+The first-pass classifier relied on a small family of API keywords. Official docs show
+much richer surfaces than those keywords captured.
+</div>
+<div class="insight">
+<b>Example — Shopify:</b> first pass = API breadth <b>unknown</b>.
+Official documentation exposes GraphQL Admin, Storefront and REST APIs, plus
+webhooks and other platform capabilities. This is a classifier recall failure,
+not a lack of Shopify API documentation.
+</div>
+<div class="insight">
+<b>Example — Zendesk:</b> first pass = API breadth <b>moderate</b>.
+Official documentation spans ticketing, Help Center, messaging, voice, AI Agents,
+custom data, omnichannel and Sales CRM. The verification pass therefore flags
+the API taxonomy as too conservative.
+</div>
+<p class="small muted">
+Important: the verification pass is evidence-based and intentionally does not turn
+search agreement into a fabricated "accuracy %" metric. A future production version
+would store field-level human labels and compute precision/recall per field.
+</p>
+</section>
+
+<section>
+<h2>Where the agent needed a human</h2>
+<ul>
+<li>Resolving ambiguous or missing official domains, e.g. Paygent Connect.</li>
+<li>Distinguishing "no MCP evidence found" from "no MCP exists."</li>
+<li>Judging whether API families are materially broad versus merely many endpoints.</li>
+<li>Interpreting vendor-specific admin/plan/access requirements.</li>
+<li>Reviewing low-confidence cases before making outreach/build decisions.</li>
+</ul>
+</section>
+
+<section>
+<h2>Category matrix</h2>
+<table>
+<thead><tr><th>Category</th><th>Apps</th><th>Self-serve</th><th>Buildable*</th><th>MCP evidence</th></tr></thead>
+<tbody>
+
+    <tr>
+      <td><b>AI/Research/Media</b></td>
+      <td>10</td>
+      <td>7</td>
+      <td>4</td>
+      <td>5</td>
+    </tr>
+    
+    <tr>
+      <td><b>CRM</b></td>
+      <td>10</td>
+      <td>8</td>
+      <td>8</td>
+      <td>4</td>
+    </tr>
+    
+    <tr>
+      <td><b>Communications</b></td>
+      <td>10</td>
+      <td>7</td>
+      <td>5</td>
+      <td>4</td>
+    </tr>
+    
+    <tr>
+      <td><b>Data/SEO/Scraping</b></td>
+      <td>10</td>
+      <td>9</td>
+      <td>6</td>
+      <td>8</td>
+    </tr>
+    
+    <tr>
+      <td><b>Developer/Infra/Data</b></td>
+      <td>10</td>
+      <td>10</td>
+      <td>4</td>
+      <td>10</td>
+    </tr>
+    
+    <tr>
+      <td><b>Ecommerce</b></td>
+      <td>10</td>
+      <td>6</td>
+      <td>4</td>
+      <td>3</td>
+    </tr>
+    
+    <tr>
+      <td><b>Finance/Fintech</b></td>
+      <td>10</td>
+      <td>7</td>
+      <td>7</td>
+      <td>6</td>
+    </tr>
+    
+    <tr>
+      <td><b>Marketing</b></td>
+      <td>10</td>
+      <td>8</td>
+      <td>4</td>
+      <td>4</td>
+    </tr>
+    
+    <tr>
+      <td><b>Productivity/PM</b></td>
+      <td>10</td>
+      <td>8</td>
+      <td>6</td>
+      <td>7</td>
+    </tr>
+    
+    <tr>
+      <td><b>Support</b></td>
+      <td>10</td>
+      <td>9</td>
+      <td>5</td>
+      <td>5</td>
+    </tr>
+    
+</tbody>
+</table>
+<p class="small muted">* "Buildable" means the first-pass verdict was yes_with_constraints; it is not a claim that production integration is already validated.</p>
+</section>
+
+<section>
+<h2>Research matrix — all 100 apps</h2>
+<div style="max-height:720px;overflow:auto">
+<table>
+<thead>
+<tr>
+<th>App</th><th>Category</th><th>Auth</th><th>Access</th><th>API</th><th>MCP</th><th>Buildability</th><th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+
+    <tr>
+      <td><b>Salesforce</b></td>
+      <td>CRM</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_oauth_and_connected_apps.htm" target="_blank">source</a> <a href="https://developer.salesforce.com/docs/platform/connect-rest-api/guide/quickstart.html" target="_blank">source</a> <a href="https://developer.salesforce.com/docs/platform/cms/guide/cms-dev-authenticate-a-connected-app-with-cms.html" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>HubSpot</b></td>
+      <td>CRM</td>
+      <td><span class="pill">OAuth 2.0, access token, API key, client credentials</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">broad</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developers.hubspot.com/docs/apps/developer-platform/build-apps/authentication/overview" target="_blank">source</a> <a href="https://developers.hubspot.com/docs/apps/developer-platform/build-apps/authentication/oauth/working-with-oauth" target="_blank">source</a> <a href="https://developers.hubspot.com/docs/apps/legacy-apps/authentication/intro-to-auth" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Pipedrive</b></td>
+      <td>CRM</td>
+      <td><span class="pill">OAuth 2.0, access token, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developers.pipedrive.com/docs/api/v1/Oauth" target="_blank">source</a> <a href="https://developers.pipedrive.com/docs/api/v1" target="_blank">source</a> <a href="https://developers.pipedrive.com/tutorials/adding-leads-to-pipedrive" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Attio</b></td>
+      <td>CRM</td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        —
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Twenty</b></td>
+      <td>CRM</td>
+      <td><span class="pill">OAuth 2.0, access token, API key, client credentials</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://docs.twenty.com/developers/extend/oauth" target="_blank">source</a> <a href="https://docs.twenty.com/developers/extend/api" target="_blank">source</a> <a href="https://docs.twenty.com/developers/extend/apps/logic/connections" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Podio</b></td>
+      <td>CRM</td>
+      <td><span class="pill">OAuth 2.0, access token, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developers.podio.com/authentication" target="_blank">source</a> <a href="https://developers.podio.com/doc/oauth-authorization" target="_blank">source</a> <a href="https://developers.podio.com/index/api" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Zoho CRM</b></td>
+      <td>CRM</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">moderate</span></td>
+      <td><span class="pill">official_first_party</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://www.zoho.com/crm/developer/docs/api/v8/oauth-overview.html" target="_blank">source</a> <a href="https://www.zoho.com/crm/developer/docs/sdk/server-side/nodejs-sdk.html" target="_blank">source</a> <a href="https://www.zoho.com/crm/developer/docs/sdk/server-side/python-sdk.html" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Close</b></td>
+      <td>CRM</td>
+      <td><span class="pill">OAuth 2.0, API key, client credentials</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">moderate</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://developer.close.com/api/overview.md" target="_blank">source</a> <a href="https://developer.close.com/topics/authentication" target="_blank">source</a> <a href="https://developer.close.com/llms.txt" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Copper</b></td>
+      <td>CRM</td>
+      <td><span class="pill">OAuth 2.0, API key, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://www.developer.copper.com/introduction/authentication.html" target="_blank">source</a> <a href="https://developer.copper.com/introduction/oauth/index.html" target="_blank">source</a> <a href="https://www.developer.copper.com/introduction/requests.html" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>DealCloud</b></td>
+      <td>CRM</td>
+      <td><span class="pill">OAuth 2.0, client credentials, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://api.docs.dealcloud.com/docs/token" target="_blank">source</a> <a href="https://api.docs.dealcloud.com/sdk/intapp-rest-client/configuration/authentication" target="_blank">source</a> <a href="https://api.docs.dealcloud.com/docs/apikeys" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Zendesk</b></td>
+      <td>Support</td>
+      <td><span class="pill">OAuth 2.0, access token, client credentials</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">moderate</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developer.zendesk.com/api-reference/introduction/security-and-auth/" target="_blank">source</a> <a href="https://developer.zendesk.com/documentation/authentication/oauth-vs-api-tokens/" target="_blank">source</a> <a href="https://developer.zendesk.com/documentation/authentication/api-tokens-to-oauth/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Intercom</b></td>
+      <td>Support</td>
+      <td><span class="pill">OAuth 2.0, access token, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://developers.intercom.com/docs/build-an-integration/learn-more/authentication" target="_blank">source</a> <a href="https://developers.intercom.com/docs/build-an-integration/getting-started" target="_blank">source</a> <a href="https://developers.intercom.com/docs/build-an-integration/learn-more/authentication/setting-up-oauth" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Freshdesk</b></td>
+      <td>Support</td>
+      <td><span class="pill">OAuth 2.0, access token, client credentials, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">moderate</span></td>
+      <td><span class="pill">official_first_party</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developers.freshworks.com/docs/app-sdk/v3.0/service_ticket/advanced-interfaces/request-method/oauth-access-freshworks-resources/" target="_blank">source</a> <a href="https://developers.freshworks.com/docs/app-sdk/v3.0/product/advanced-interfaces/request-method/oauth/" target="_blank">source</a> <a href="https://developers.freshworks.com/docs/tutorials/intermediate/request-method/setup-oauth/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Front</b></td>
+      <td>Support</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">moderate</span></td>
+      <td><span class="pill">official_first_party</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://dev.frontapp.com/docs/authentication" target="_blank">source</a> <a href="https://dev.frontapp.com/reference/introduction" target="_blank">source</a> <a href="https://dev.frontapp.com/docs/create-and-revoke-api-tokens" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Pylon</b></td>
+      <td>Support</td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_first_party</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://docs.usepylon.com/pylon-docs/developer/custom-apps.md" target="_blank">source</a> <a href="https://docs.usepylon.com/pylon-docs/integrations/crm" target="_blank">source</a> <a href="https://docs.usepylon.com/pylon-docs/integrations/pylon-mcp" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>LiveAgent</b></td>
+      <td>Support</td>
+      <td><span class="pill">API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_first_party</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://support.liveagent.com/741982-API-key" target="_blank">source</a> <a href="https://support.liveagent.com/840770-Complete-API-reference" target="_blank">source</a> <a href="https://support.liveagent.com/567924-Documentation" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Plain</b></td>
+      <td>Support</td>
+      <td><span class="pill">API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://help.plain.com/article/api-quickstart" target="_blank">source</a> <a href="https://help.plain.com/article/developer" target="_blank">source</a> <a href="https://www.plain.com/docs/llms-full.txt" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Help Scout</b></td>
+      <td>Support</td>
+      <td><span class="pill">OAuth 2.0, access token, client credentials, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developer.helpscout.com/mailbox-api/overview/authentication/" target="_blank">source</a> <a href="https://developer.helpscout.com/docs-api/" target="_blank">source</a> <a href="https://developer.helpscout.com/mailbox-api/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Gorgias</b></td>
+      <td>Support</td>
+      <td><span class="pill">OAuth 2.0, API key, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://developers.gorgias.com/reference/authentication" target="_blank">source</a> <a href="https://developers.gorgias.com/docs/access-tokens-api-keys" target="_blank">source</a> <a href="https://developers.gorgias.com/docs/oauth2-bearer-token" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Gladly</b></td>
+      <td>Support</td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://developer.gladly.com/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Slack</b></td>
+      <td>Communications</td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        —
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Twilio</b></td>
+      <td>Communications</td>
+      <td><span class="pill">access token, API key, OAuth 2.0, client credentials</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">moderate</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://www.twilio.com/docs/iam/api-keys" target="_blank">source</a> <a href="https://www.twilio.com/docs/iam/oauth-apps/overview" target="_blank">source</a> <a href="https://www.twilio.com/docs/iam/access-tokens" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Zoho Cliq</b></td>
+      <td>Communications</td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        —
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Lark (Larksuite)</b></td>
+      <td>Communications</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://open.larksuite.com/document/uAjLw4CM/ukTMukTMukTM/authentication-management/access-token/get-user-access-token" target="_blank">source</a> <a href="https://open.larksuite.com/document/home/introduction-to-scope-and-authorization/access-credentials" target="_blank">source</a> <a href="https://open.larksuite.com/document/server-docs/getting-started/api-access-token/app-access-token-development-guide" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Pumble</b></td>
+      <td>Communications</td>
+      <td><span class="pill">API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://pumble.com/help/integrations/automation-workflow-integrations/api-keys-integration/" target="_blank">source</a> <a href="https://pumble.com/learn/pumble/ai-automation-guide/" target="_blank">source</a> <a href="https://pumble.com/help/integrations/automation-workflow-integrations/how-to-use-the-pumble-mcp-server/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Discord</b></td>
+      <td>Communications</td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        —
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Telegram</b></td>
+      <td>Communications</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://core.telegram.org/bots/telegram-login?referrer=wordpress.com" target="_blank">source</a> <a href="https://core.telegram.org/bots" target="_blank">source</a> <a href="https://core.telegram.org/api" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>WhatsApp Business</b></td>
+      <td>Communications</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developers.facebook.com/docs/whatsapp/business-management-api/reference/" target="_blank">source</a> <a href="https://developers.facebook.com/docs/whatsapp/cloud-api/get-started/" target="_blank">source</a> <a href="https://developers.facebook.com/docs/whatsapp/cloud-api/reference/registration/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Aircall</b></td>
+      <td>Communications</td>
+      <td><span class="pill">OAuth 2.0, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">moderate</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developer.aircall.io/docs/authentication" target="_blank">source</a> <a href="https://developer.aircall.io/docs/public-vs-private-app" target="_blank">source</a> <a href="https://developer.aircall.io/docs/your-first-api-call" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Vonage</b></td>
+      <td>Communications</td>
+      <td><span class="pill">API key, OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_first_party</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developer.vonage.com/en/getting-started/concepts/authentication" target="_blank">source</a> <a href="https://developer.vonage.com/en/verify/concepts/authentication" target="_blank">source</a> <a href="https://developer.vonage.com/en/vonage-business-cloud/getting-started/create-an-access-token" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Google Ads</b></td>
+      <td>Marketing</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_first_party</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developers.google.com/google-ads/api/rest/auth" target="_blank">source</a> <a href="https://developers.google.com/google-ads/api/docs/concepts/call-structure" target="_blank">source</a> <a href="https://developers.google.com/google-ads/api/docs/get-started/make-first-call" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Meta Ads</b></td>
+      <td>Marketing</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">moderate</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developers.facebook.com/docs/marketing-api/get-started/authentication/" target="_blank">source</a> <a href="https://developers.facebook.com/docs/marketing-api/creative/reels-ads/" target="_blank">source</a> <a href="https://developers.facebook.com/docs/facebook-login/facebook-login-for-business/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>LinkedIn Ads</b></td>
+      <td>Marketing</td>
+      <td><span class="pill">OAuth 2.0, access token, client credentials, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://learn.microsoft.com/en-us/linkedin/marketing/getting-started?view=li-lms-2026-02" target="_blank">source</a> <a href="https://learn.microsoft.com/en-us/linkedin/shared/authentication/client-credentials-flow" target="_blank">source</a> <a href="https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>GoHighLevel</b></td>
+      <td>Marketing</td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        —
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Mailchimp</b></td>
+      <td>Marketing</td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        —
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Klaviyo</b></td>
+      <td>Marketing</td>
+      <td><span class="pill">OAuth 2.0, access token, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://developers.klaviyo.com/en/docs/authenticate_" target="_blank">source</a> <a href="https://developers.klaviyo.com/en/v2026-01-15/docs/set_up_oauth" target="_blank">source</a> <a href="https://developers.klaviyo.com/en/docs/create_a_public_oauth_app" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>systeme.io</b></td>
+      <td>Marketing</td>
+      <td><span class="pill">API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_first_party</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://help.systeme.io/article/2323-how-to-use-systeme-io-public-api" target="_blank">source</a> <a href="https://developer.systeme.io/reference/api_schoolcourses_courseidenrollments_post-1" target="_blank">source</a> <a href="https://developer.systeme.io/reference/api" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Pinterest</b></td>
+      <td>Marketing</td>
+      <td><span class="pill">OAuth 2.0, access token, API key, client credentials</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">moderate</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developers.pinterest.com/docs/getting-started/authentication/" target="_blank">source</a> <a href="https://developers.pinterest.com/docs/getting-started/connect-app/" target="_blank">source</a> <a href="https://developers.pinterest.com/docs/key-concepts/best-practices/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Threads (Meta)</b></td>
+      <td>Marketing</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://developers.facebook.com/docs/threads/get-started/" target="_blank">source</a> <a href="https://developers.facebook.com/docs/threads/get-started/get-access-tokens-and-permissions/" target="_blank">source</a> <a href="https://developers.facebook.com/docs/development/create-an-app/threads-use-case/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>SendGrid</b></td>
+      <td>Marketing</td>
+      <td><span class="pill">API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://docs.sendgrid.com/api-reference/api-keys/retrieve-an-existing-api-key" target="_blank">source</a> <a href="https://docs.sendgrid.com/api-reference/account-provisioning-api/account-provisioning-api-overview" target="_blank">source</a> <a href="https://docs.sendgrid.com/for-developers/sending-email/web-api-vs-smtp" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Shopify</b></td>
+      <td>Ecommerce</td>
+      <td><span class="pill">OAuth 2.0, access token, client credentials, API key</span></td>
+      <td><span class="pill">mixed</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_first_party</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens" target="_blank">source</a> <a href="https://shopify.dev/docs/apps/build/authentication-authorization/manage-credentials" target="_blank">source</a> <a href="https://shopify.dev/docs/apps/build/authentication-authorization" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>WooCommerce</b></td>
+      <td>Ecommerce</td>
+      <td><span class="pill">OAuth 2.0, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">moderate</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developer.woocommerce.com/docs/apis/rest-api/authentication/" target="_blank">source</a> <a href="https://developer.woocommerce.com/docs/apis/rest-api/" target="_blank">source</a> <a href="https://developer.woocommerce.com/docs/apis/rest-api/v3/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>BigCommerce</b></td>
+      <td>Ecommerce</td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        —
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Salesforce Commerce Cloud</b></td>
+      <td>Ecommerce</td>
+      <td><span class="pill">OAuth 2.0, access token, client credentials</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization-for-admin-apis.html" target="_blank">source</a> <a href="https://developer.salesforce.com/docs/commerce/commerce-api/guide/authorization.html" target="_blank">source</a> <a href="https://developer.salesforce.com/docs/commerce/b2c-commerce/guide/scapi-get-started.html" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Magento (Adobe Commerce)</b></td>
+      <td>Ecommerce</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developer.adobe.com/commerce/webapi/get-started/authentication/gs-authentication-oauth" target="_blank">source</a> <a href="https://developer.adobe.com/commerce/webapi/get-started/authentication/" target="_blank">source</a> <a href="https://developer.adobe.com/commerce/webapi/rest/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Squarespace</b></td>
+      <td>Ecommerce</td>
+      <td><span class="pill">OAuth 2.0, access token, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">moderate</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developers.squarespace.com/commerce-apis/authentication-and-permissions" target="_blank">source</a> <a href="https://developers.squarespace.com/commerce-apis/oauth" target="_blank">source</a> <a href="https://developers.squarespace.com/changes/self-service-oauth-credential-management" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Ecwid</b></td>
+      <td>Ecommerce</td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        —
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Gumroad</b></td>
+      <td>Ecommerce</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://gumroad.com/api" target="_blank">source</a> <a href="https://gumroad.com/help/article/280-create-application-api" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Amazon Selling Partner</b></td>
+      <td>Ecommerce</td>
+      <td><span class="pill">OAuth 2.0, access token, client credentials</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://developer-docs.amazon.com/sp-api/docs/onboarding-step-6-set-up-the-authorization-workflow" target="_blank">source</a> <a href="https://developer-docs.amazon.com/sp-api/docs/authorize-public-applications" target="_blank">source</a> <a href="https://developer-docs.amazon.com/sp-api/docs/register-as-a-service-provider" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>fanbasis</b></td>
+      <td>Ecommerce</td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        —
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>DataForSEO</b></td>
+      <td>Data/SEO/Scraping</td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://docs.dataforseo.com/v2/auth/" target="_blank">source</a> <a href="https://docs.dataforseo.com/v3/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>SE Ranking</b></td>
+      <td>Data/SEO/Scraping</td>
+      <td><span class="pill">API key, OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://seranking.com/api/how-to-get-api/" target="_blank">source</a> <a href="https://seranking.com/api/data/getting-started/" target="_blank">source</a> <a href="https://seranking.com/api/integrations/mcp/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Ahrefs</b></td>
+      <td>Data/SEO/Scraping</td>
+      <td><span class="pill">API key, OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://docs.ahrefs.com/api/docs/introduction.md" target="_blank">source</a> <a href="https://docs.ahrefs.com/" target="_blank">source</a> <a href="https://docs.ahrefs.com/llms.txt" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>MrScraper</b></td>
+      <td>Data/SEO/Scraping</td>
+      <td><span class="pill">API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://docs.mrscraper.com/docs/getting-started/cli" target="_blank">source</a> <a href="https://docs.mrscraper.com/docs/getting-started/overview" target="_blank">source</a> <a href="https://docs.mrscraper.com/docs/integrations/n8n" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Apify</b></td>
+      <td>Data/SEO/Scraping</td>
+      <td><span class="pill">access token, OAuth 2.0, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://docs.apify.com/integrations/api" target="_blank">source</a> <a href="https://docs.apify.com/account/settings" target="_blank">source</a> <a href="https://docs.apify.com/integrations/mcp.md" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Firecrawl</b></td>
+      <td>Data/SEO/Scraping</td>
+      <td><span class="pill">API key, OAuth 2.0</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://docs.firecrawl.dev/api-reference/endpoint/scrape" target="_blank">source</a> <a href="https://docs.firecrawl.dev/developer-guides/mcp-setup-guides/oauth" target="_blank">source</a> <a href="https://docs.firecrawl.dev/sdks/python" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Bright Data</b></td>
+      <td>Data/SEO/Scraping</td>
+      <td><span class="pill">API key, OAuth 2.0</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">moderate</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://docs.brightdata.com/api-reference/authentication" target="_blank">source</a> <a href="https://docs.brightdata.com/cli/installation" target="_blank">source</a> <a href="https://docs.brightdata.com/api-reference/scrapers/synchronous-requests" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Sherlock</b></td>
+      <td>Data/SEO/Scraping</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://github.com/sherlock-hs/mcp-atlassian" target="_blank">source</a> <a href="https://github.com/Burnsedia/sherlock-mcp" target="_blank">source</a> <a href="https://github.com/H4RR1SON/sherlock-mcp" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Waterfall.io</b></td>
+      <td>Data/SEO/Scraping</td>
+      <td><span class="pill">API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://docs.waterfall.io/v1/introduction" target="_blank">source</a> <a href="https://docs.waterfall.io/v1/api-keys-list" target="_blank">source</a> <a href="https://docs.waterfall.io/v1/api-keys-overview" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Clay</b></td>
+      <td>Data/SEO/Scraping</td>
+      <td><span class="pill">API key, OAuth 2.0, access token, client credentials</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developers.clay.com/public-api/authentication" target="_blank">source</a> <a href="https://developers.clay.com/quickstart" target="_blank">source</a> <a href="https://university.clay.com/docs/cli-security-privacy" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>GitHub</b></td>
+      <td>Developer/Infra/Data</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://docs.github.com/en/rest/authentication/authenticating-to-the-rest-api?apiVersion=2026-03-10" target="_blank">source</a> <a href="https://docs.github.com/en/rest/using-the-rest-api/getting-started-with-the-rest-api?tool=cli" target="_blank">source</a> <a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens.md" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Vercel</b></td>
+      <td>Developer/Infra/Data</td>
+      <td><span class="pill">access token, OAuth 2.0, API key, client credentials</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://vercel.com/docs/accounts/access-tokens" target="_blank">source</a> <a href="https://vercel.com/docs/integrations/create-integration/vercel-api-integrations" target="_blank">source</a> <a href="https://vercel.com/docs/rest-api/getting-started" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Netlify</b></td>
+      <td>Developer/Infra/Data</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://docs.netlify.com/api-and-cli-guides/api-guides/get-started-with-api" target="_blank">source</a> <a href="https://docs.netlify.com/api-and-cli-guides/cli-guides/get-started-with-cli/" target="_blank">source</a> <a href="https://docs.netlify.com/manage/security/secure-access-to-sites/oauth-provider-tokens/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Cloudflare</b></td>
+      <td>Developer/Infra/Data</td>
+      <td><span class="pill">API key, OAuth 2.0</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://developers.cloudflare.com/fundamentals/api/how-to/" target="_blank">source</a> <a href="https://developers.cloudflare.com/fundamentals/api/how-to/make-api-calls/" target="_blank">source</a> <a href="https://developers.cloudflare.com/fundamentals/oauth/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Supabase</b></td>
+      <td>Developer/Infra/Data</td>
+      <td><span class="pill">OAuth 2.0, access token, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://supabase.com/docs/guides/getting-started/api-keys" target="_blank">source</a> <a href="https://supabase.com/docs/guides/auth/jwts" target="_blank">source</a> <a href="https://supabase.com/docs/guides/auth/signing-keys" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Neo4j</b></td>
+      <td>Developer/Infra/Data</td>
+      <td><span class="pill">OAuth 2.0, access token, client credentials, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://neo4j.com/docs/aura/api/authentication/" target="_blank">source</a> <a href="https://neo4j.com/docs/operations-manual/current/authentication-authorization/sso-integration/" target="_blank">source</a> <a href="https://neo4j.com/docs/operations-manual/current/tutorial/tutorial-sso-configuration/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Snowflake</b></td>
+      <td>Developer/Infra/Data</td>
+      <td><span class="pill">OAuth 2.0, access token, client credentials</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://docs.snowflake.com/en/en/developer-guide/snowflake-rest-api/authentication" target="_blank">source</a> <a href="https://docs.snowflake.com/en/developer-guide/sql-api/authenticating" target="_blank">source</a> <a href="https://docs.snowflake.com/en/en/user-guide/api-authentication" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>MongoDB Atlas</b></td>
+      <td>Developer/Infra/Data</td>
+      <td><span class="pill">OAuth 2.0, access token, API key, client credentials</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://www.mongodb.com/docs/atlas/api/api-authentication/" target="_blank">source</a> <a href="https://www.mongodb.com/docs/atlas/api/service-accounts/generate-oauth2-token/" target="_blank">source</a> <a href="https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Datadog</b></td>
+      <td>Developer/Infra/Data</td>
+      <td><span class="pill">API key, access token, OAuth 2.0, client credentials</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://docs.datadoghq.com/api/latest/authentication.md" target="_blank">source</a> <a href="https://docs.datadoghq.com/api/latest.md" target="_blank">source</a> <a href="https://docs.datadoghq.com/account%5Fmanagement/api-app-keys.md" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Sentry</b></td>
+      <td>Developer/Infra/Data</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_first_party</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://docs.sentry.io/api/auth/" target="_blank">source</a> <a href="https://docs.sentry.io/integrations/integration-platform/public-integration/" target="_blank">source</a> <a href="https://docs.sentry.io/integrations/integration-platform/public-integration.md" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Notion</b></td>
+      <td>Productivity/PM</td>
+      <td><span class="pill">OAuth 2.0, access token, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developers.notion.com/reference/authentication" target="_blank">source</a> <a href="https://developers.notion.com/reference/intro" target="_blank">source</a> <a href="https://developers.notion.com/guides/get-started/authorization" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Airtable</b></td>
+      <td>Productivity/PM</td>
+      <td><span class="pill">OAuth 2.0, access token, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_first_party</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://airtable.com/developers/web/api/authentication" target="_blank">source</a> <a href="https://support.airtable.com/articles/9934989703-creating-personal-access-tokens" target="_blank">source</a> <a href="https://airtable.com/developers/web/guides/personal-access-tokens" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Linear</b></td>
+      <td>Productivity/PM</td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        —
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Jira</b></td>
+      <td>Productivity/PM</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developer.atlassian.com/cloud/jira/platform/security-for-other-integrations/" target="_blank">source</a> <a href="https://developer.atlassian.com/cloud/oauth/getting-started/making-calls-to-api/" target="_blank">source</a> <a href="https://developer.atlassian.com/cloud/jira/software/security-overview/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Asana</b></td>
+      <td>Productivity/PM</td>
+      <td><span class="pill">OAuth 2.0, access token, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developers.asana.com/docs/authentication" target="_blank">source</a> <a href="https://developers.asana.com/docs/oauth" target="_blank">source</a> <a href="https://developers.asana.com/docs/personal-access-token" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Monday.com</b></td>
+      <td>Productivity/PM</td>
+      <td><span class="pill">access token, OAuth 2.0, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">moderate</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developer.monday.com/api-reference/docs/authentication" target="_blank">source</a> <a href="https://developer.monday.com/apps/docs/choosing-auth" target="_blank">source</a> <a href="https://developer.monday.com/api-reference/docs/getting-started" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>ClickUp</b></td>
+      <td>Productivity/PM</td>
+      <td><span class="pill">OAuth 2.0, access token, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">moderate</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developer.clickup.com/docs/authentication" target="_blank">source</a> <a href="https://developer.clickup.com/docs/Getting%20Started.md" target="_blank">source</a> <a href="https://clickup.com/blog/clickup-api/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Coda</b></td>
+      <td>Productivity/PM</td>
+      <td><span class="pill">OAuth 2.0, access token, API key, client credentials</span></td>
+      <td><span class="pill">mixed</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://coda.io/packs/build/latest/guides/basics/authentication/oauth2/" target="_blank">source</a> <a href="https://coda.io/apis/v1/openapi.yaml" target="_blank">source</a> <a href="https://coda.io/packs/build/latest/guides/basics/authentication/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Smartsheet</b></td>
+      <td>Productivity/PM</td>
+      <td><span class="pill">OAuth 2.0, access token, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">moderate</span></td>
+      <td><span class="pill">official_first_party</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developers.smartsheet.com/api/smartsheet/guides/basics/authentication" target="_blank">source</a> <a href="https://developers.smartsheet.com/api/smartsheet/guides/advanced-topics/oauth" target="_blank">source</a> <a href="https://developers.smartsheet.com/api/smartsheet/guides/getting-started" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Harvest</b></td>
+      <td>Productivity/PM</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://help.getharvest.com/api-v2/authentication-api/authentication/authentication/" target="_blank">source</a> <a href="https://help.getharvest.com/api-v2/introduction/overview/general/" target="_blank">source</a> <a href="https://help.getharvest.com/api-v1/authentication/authentication/oauth/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Stripe</b></td>
+      <td>Finance/Fintech</td>
+      <td><span class="pill">OAuth 2.0, access token, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://docs.stripe.com/stripe-apps/api-authentication" target="_blank">source</a> <a href="https://docs.stripe.com/stripe-apps/api-authentication/oauth" target="_blank">source</a> <a href="https://docs.stripe.com/api/authentication?api-version=2025-02-24.acacia" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Plaid</b></td>
+      <td>Finance/Fintech</td>
+      <td><span class="pill">API key, OAuth 2.0, access token</span></td>
+      <td><span class="pill">mixed</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://plaid.com/docs/api/" target="_blank">source</a> <a href="https://plaid.com/docs/auth/add-to-app/index.html.md" target="_blank">source</a> <a href="https://plaid.com/docs/api/items/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Binance</b></td>
+      <td>Finance/Fintech</td>
+      <td><span class="pill">API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developers.binance.com/en/docs/catalog/core-trading-spot-trading/api/ws-api/auth" target="_blank">source</a> <a href="https://developers.binance.com/docs/pay/quick-start" target="_blank">source</a> <a href="https://developers.binance.com/docs/binance_link/kyc-saas/general-info/Webhook-Notifications" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Paygent Connect</b></td>
+      <td>Finance/Fintech</td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        —
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>iPayX</b></td>
+      <td>Finance/Fintech</td>
+      <td><span class="pill">API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_first_party</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://www.ipayx.ai/docs/mcp-server" target="_blank">source</a> <a href="https://www.ipayx.ai/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>QuickBooks</b></td>
+      <td>Finance/Fintech</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">moderate</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developer.intuit.com/app/developer/qbo/docs/develop/authentication-and-authorization/faq" target="_blank">source</a> <a href="https://developer.intuit.com/app/developer/qbpayments/docs/develop/authentication-and-authorization/oauth-2.0" target="_blank">source</a> <a href="https://developer.intuit.com/app/developer/qbo/docs/develop/authentication-and-authorization/oauth-openid-discovery-doc" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Xero</b></td>
+      <td>Finance/Fintech</td>
+      <td><span class="pill">client credentials, OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developer.xero.com/documentation/guides/oauth2/client-credentials" target="_blank">source</a> <a href="https://developer.xero.com/custom-development" target="_blank">source</a> <a href="https://developer.xero.com/faq/oauth2" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Brex</b></td>
+      <td>Finance/Fintech</td>
+      <td><span class="pill">OAuth 2.0, access token, client credentials, API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://developer.brex.com/guides/partner_authentication" target="_blank">source</a> <a href="https://developer.brex.com/docs/mcp" target="_blank">source</a> <a href="https://developer.brex.com/guides/roles_permissions_scopes" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Ramp</b></td>
+      <td>Finance/Fintech</td>
+      <td><span class="pill">OAuth 2.0, access token, client credentials, API key</span></td>
+      <td><span class="pill">mixed</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://docs.ramp.com/llms-guides/authorization.txt" target="_blank">source</a> <a href="https://docs.ramp.com/llms-guides.txt" target="_blank">source</a> <a href="https://docs.ramp.com/llms-guides/getting-started.txt" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>PitchBook</b></td>
+      <td>Finance/Fintech</td>
+      <td><span class="pill">API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_first_party</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://pitchbook.com/help/PitchBook-api" target="_blank">source</a> <a href="https://pitchbook.com/products/crm-integration" target="_blank">source</a> <a href="https://mcp-proxy-external.pitchbook.com/" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>NotebookLM</b></td>
+      <td>AI/Research/Media</td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://docs.cloud.google.com/gemini/enterprise/notebooklm-enterprise/docs/cmek" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Otter AI</b></td>
+      <td>AI/Research/Media</td>
+      <td><span class="pill">API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">moderate</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://help.otter.ai/hc/en-us/articles/36130822688279-Otter-ai-Public-API" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Fathom</b></td>
+      <td>AI/Research/Media</td>
+      <td><span class="pill">OAuth 2.0, API key</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://help.fathom.video/en/articles/8368641" target="_blank">source</a> <a href="https://help.fathom.video/en/articles/448640" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Consensus</b></td>
+      <td>AI/Research/Media</td>
+      <td><span class="pill">OAuth 2.0, API key</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://docs.consensus.app/docs/mcp" target="_blank">source</a> <a href="https://docs.consensus.app/consensus-mcp" target="_blank">source</a> <a href="https://docs.consensus.app/reference/v1_quick_search" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Reducto</b></td>
+      <td>AI/Research/Media</td>
+      <td><span class="pill">API key, OAuth 2.0</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://reducto.ai/developers.md" target="_blank">source</a> <a href="https://reducto.ai/auth.md" target="_blank">source</a> <a href="https://docs.reducto.ai/mcp-server" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Devin</b></td>
+      <td>AI/Research/Media</td>
+      <td><span class="pill">access token, API key, OAuth 2.0, client credentials</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_remote</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://docs.devin.ai/api-reference/authentication" target="_blank">source</a> <a href="https://docs.devin.ai/api-reference/personal-access-tokens" target="_blank">source</a> <a href="https://docs.devin.ai/api-reference/overview?_rsc=onxgsUYOTHUPLgG1" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>higgsfield</b></td>
+      <td>AI/Research/Media</td>
+      <td><span class="pill">API key</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_first_party</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://higgsfield.ai/creator-hub/help-center/integrations/what-is-the-higgsfield-api" target="_blank">source</a> <a href="https://open.higgsfield.ai/models/higgsfield-ai/soul/v2/standard/api-reference" target="_blank">source</a> <a href="https://open.higgsfield.ai/quick-start" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Mermaid CLI</b></td>
+      <td>AI/Research/Media</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">official_first_party</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        <a href="https://github.com/data-mermaid/mermaid-api/blob/master/docs/source/authentication.rst" target="_blank">source</a> <a href="https://github.com/mermaid-js/mermaid-cli/blob/6e593e3b81aacaf7984151b96d7644daa58daa41/building.md" target="_blank">source</a> <a href="https://github.com/noahsabaj/mermaid-cli" target="_blank">source</a>
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>YouTube Transcript</b></td>
+      <td>AI/Research/Media</td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td><span class="pill">none_found</span></td>
+      <td><span class="pill">unknown</span></td>
+      <td>
+        —
+      </td>
+    </tr>
+    
+    <tr>
+      <td><b>Grain</b></td>
+      <td>AI/Research/Media</td>
+      <td><span class="pill">OAuth 2.0, access token</span></td>
+      <td><span class="pill">self_serve</span></td>
+      <td><span class="pill">specialized</span></td>
+      <td><span class="pill">official_first_party</span></td>
+      <td><span class="pill">yes_with_constraints</span></td>
+      <td>
+        <a href="https://developers.grain.com/" target="_blank">source</a> <a href="https://support.grain.com/en/articles/15507288-grain-api" target="_blank">source</a> <a href="https://support.grain.com/en/articles/14811968-grain-mcp" target="_blank">source</a>
+      </td>
+    </tr>
+    
+</tbody>
+</table>
+</div>
+</section>
+
+<section>
+<h2>Reproduce</h2>
+<pre style="white-space:pre-wrap;background:#111318;color:#eee;padding:18px;border-radius:12px">python src/researcher.py
+python -m src.run_classifier
+python src/verify_pass.py
+python src/build_report.py</pre>
+<p>
+Source files: <code>src/researcher.py</code>, <code>src/classifier.py</code>,
+<code>src/verify_pass.py</code>. Raw evidence is stored in
+<code>data/raw/research_evidence.json</code>; first-pass output in
+<code>data/processed/first_pass.json</code>.
+</p>
+</section>
+
+<footer>
+Built as a time-boxed take-home. The system prefers explicit uncertainty over invented evidence.
+"none_found" and "unknown" are intentionally preserved where the evidence pipeline could not establish a claim.
+</footer>
+
+</main>
+</body>
+</html>

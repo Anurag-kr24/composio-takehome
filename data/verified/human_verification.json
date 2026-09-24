@@ -1,0 +1,16 @@
+{
+  "method": {
+    "sample_size": 20,
+    "sampling": "2 apps per category, selected systematically from the first-pass dataset",
+    "verification_sources": "independent official documentation review",
+    "fields_checked": [
+      "description",
+      "auth_methods",
+      "credential_access",
+      "api_breadth",
+      "mcp",
+      "buildability"
+    ]
+  },
+  "records": []
+}
