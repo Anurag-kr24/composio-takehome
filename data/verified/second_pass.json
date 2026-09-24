@@ -29,7 +29,7 @@
     },
     "verification_search": {
       "data": {
-        "answer": "NotebookLM does not provide an official public API; the available MCP implementations function by extracting browser cookies from a managed session [1][2].\n\nTo authenticate, use the CLI command `nlm login` (or `notebooklm login` depending on your package), which automatically extracts and caches your Google session cookies, CSRF token, and session ID [1][3][4]. These are stored locally in an `auth.json` file [1][2].\n\nFor MCP server configuration, avoid hardcoding tokens in environment variables, as they rotate frequently [5][1]. Instead, rely on the CLI to manage the token lifecycle automatically [1][2]. If you must use environment variables for specific deployments, ensure `NOTEBOOKLM_BASE_URL` is set for Google Workspace instances [1][6].",
+        "answer": "NotebookLM MCP authentication uses browser cookies (no official API). The CLI/MCP extracts required cookies (SID/HSID/SSID/APISID/SAPISID and related secure session cookies) from an installed, managed browser session; you authenticate once with `nlm login`, which caches CSRF/session ID and cookies under `~/.notebooklm-mcp-cli/` [1][2]. For Workspace/managed instances, set `NOTEBOOKLM_BASE_URL` (e.g., `https://notebooklm.cloud.google.com`) in your MCP server env config [1]. The underlying NotebookLM base endpoint is a POST to `https://notebooklm.google.com/_/LabsTailwindUi/data/batchexecute` with form fields `f.req` (URL-encoded JSON) and `at` (CSRF token) [3].",
         "citations": [
           {
             "id": "https://github.com/jacob-bd/notebooklm-mcp/blob/main/docs/AUTHENTICATION.md",
@@ -37,19 +37,9 @@
             "url": "https://github.com/jacob-bd/notebooklm-mcp/blob/main/docs/AUTHENTICATION.md"
           },
           {
-            "id": "https://github.com/jacob-bd/notebooklm-mcp-cli/blob/main/docs/AUTHENTICATION.md",
-            "title": "docs/AUTHENTICATION.md",
-            "url": "https://github.com/jacob-bd/notebooklm-mcp-cli/blob/main/docs/AUTHENTICATION.md"
-          },
-          {
             "id": "https://github.com/jacob-bd/notebooklm-mcp-cli/blob/main/docs/GETTING_STARTED.md",
             "title": "docs/GETTING_STARTED.md",
             "url": "https://github.com/jacob-bd/notebooklm-mcp-cli/blob/main/docs/GETTING_STARTED.md"
-          },
-          {
-            "id": "https://github.com/teng-lin/notebooklm-py/blob/main/docs/mcp-guide.md",
-            "title": "docs/mcp-guide.md",
-            "url": "https://github.com/teng-lin/notebooklm-py/blob/main/docs/mcp-guide.md"
           },
           {
             "id": "https://github.com/jacob-bd/notebooklm-mcp-cli/blob/d6844f60797c4f0cc16059385fb4344ba61f9b91/docs/API_REFERENCE.md",
@@ -62,6 +52,11 @@
             "url": "https://github.com/jacob-bd/notebooklm-mcp-cli/blob/main/docs/MCP%5FGUIDE.md"
           },
           {
+            "id": "https://github.com/jacob-bd/notebooklm-mcp-cli/blob/main/docs/AUTHENTICATION.md",
+            "title": "docs/AUTHENTICATION.md",
+            "url": "https://github.com/jacob-bd/notebooklm-mcp-cli/blob/main/docs/AUTHENTICATION.md"
+          },
+          {
             "id": "https://github.com/roomi-fields/notebooklm-mcp/blob/HEAD/deployment/docs/03-API.md",
             "title": "deployment/docs/03-API.md at HEAD \u00b7 roomi-fields/notebooklm-mcp",
             "url": "https://github.com/roomi-fields/notebooklm-mcp/blob/HEAD/deployment/docs/03-API.md"
@@ -70,6 +65,11 @@
             "id": "https://github.com/teng-lin/notebooklm-py/blob/main/docs/python-api.md",
             "title": "docs/python-api.md",
             "url": "https://github.com/teng-lin/notebooklm-py/blob/main/docs/python-api.md"
+          },
+          {
+            "id": "https://github.com/teng-lin/notebooklm-py/blob/main/docs/mcp-guide.md",
+            "title": "docs/mcp-guide.md",
+            "url": "https://github.com/teng-lin/notebooklm-py/blob/main/docs/mcp-guide.md"
           }
         ]
       },
@@ -106,7 +106,7 @@
     },
     "verification_search": {
       "data": {
-        "answer": "To authenticate the official Devin MCP server, create a Devin API key (service user recommended) and pass it as a Bearer token in your MCP client config to https://mcp.devin.ai/mcp with Authorization: Bearer <API_KEY> (keys must use the cog_ prefix; legacy apk_ keys aren\u2019t supported) [1][2]. For Enterprise accounts, also set X-Org-Id: <YOUR_ORG_ID> [1][3]. Example (most clients): { \"mcpServers\": { \"devin\": { \"url\": \"https://mcp.devin.ai/mcp\", \"headers\": { \"Authorization\": \"Bearer <API_KEY>\", \"X-Org-Id\": \"<YOUR_ORG_ID>\" }}}}[1][3]",
+        "answer": "Use the official Devin MCP server with a Devin API key (cog_ prefix) in your MCP client\u2019s Authorization header; legacy apk_ keys are not supported. Base URL is https://mcp.devin.ai/mcp. For enterprise accounts, also send X-Org-Id to target the organization; org-scoped service user keys resolve automatically. Example (most clients): {\"mcpServers\":{\"devin\":{\"url\":\"https://mcp.devin.ai/mcp\",\"headers\":{\"Authorization\":\"Bearer <API_KEY>\",\"X-Org-Id\":\"<YOUR_ORG_ID>\"}}}}. [1] [2]",
         "citations": [
           {
             "id": "https://docs.devin.ai/work-with-devin/devin-mcp",
@@ -114,14 +114,14 @@
             "url": "https://docs.devin.ai/work-with-devin/devin-mcp"
           },
           {
-            "id": "https://docs.devin.ai/api-reference/authentication",
-            "title": "",
-            "url": "https://docs.devin.ai/api-reference/authentication"
-          },
-          {
             "id": "https://docs.devinenterprise.com/work-with-devin/devin-mcp",
             "title": "",
             "url": "https://docs.devinenterprise.com/work-with-devin/devin-mcp"
+          },
+          {
+            "id": "https://docs.devin.ai/api-reference/authentication",
+            "title": "",
+            "url": "https://docs.devin.ai/api-reference/authentication"
           },
           {
             "id": "https://docs.devin.ai/work-with-devin/mcp",
@@ -183,7 +183,7 @@
     },
     "verification_search": {
       "data": {
-        "answer": "To authenticate an MCP client with Salesforce, you must register an External Client App (ECA) in your Salesforce org [1][2]. Connected Apps are not supported [1][2].\n\nIn the External Client App Manager, enable OAuth settings, provide the specific callback URL required by your client (e.g., `http://localhost:8787/callback` for Cursor), and include the `mcp_api` and `refresh_token` scopes [1]. You must use the OAuth 2.0 Authorization Code flow with PKCE [3][4]. For web-based clients, you may additionally require a client secret [1]. Configure your MCP client using the consumer key generated by the ECA [2][5].",
+        "answer": "To authenticate a Salesforce Hosted MCP Server, you must register an External Client App in your org (Connected Apps aren\u2019t supported) and use OAuth 2.0 Authorization Code flow with PKCE, per-user context. Create/configure the External Client App, enable OAuth settings, and add the MCP client\u2019s callback URL. Use your saved consumer key (OAuth Client ID) in the MCP client. In Postman, configure OAuth 2.0 (Authorization Code with PKCE) with scope mcp_api refresh_token, client ID=consumer key, and callback URL matching the External Client App. [1][2][3][4]",
         "citations": [
           {
             "author": "Salesforce",
@@ -192,14 +192,6 @@
             "image": "https://a.sfdcstatic.com/shared/images/c360-nav/icons.svg#hamburger-blue",
             "title": "Create an External Client App | Set Up Your Org | Hosted MCP Servers | Salesforce Developers",
             "url": "https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/create-external-client-app.html"
-          },
-          {
-            "author": "Salesforce",
-            "favicon": "https://developer.salesforce.com/ns-assets/favicon.ico",
-            "id": "https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/client-connection-overview.html",
-            "image": "https://a.sfdcstatic.com/shared/images/c360-nav/icons.svg#hamburger-blue",
-            "title": "Connect MCP Clients | Hosted MCP Servers | Salesforce Developers",
-            "url": "https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/client-connection-overview.html"
           },
           {
             "author": "Salesforce",
@@ -219,9 +211,11 @@
           },
           {
             "author": "Salesforce",
-            "id": "https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html",
-            "title": "Get Started | Hosted MCP Servers | Salesforce Developers",
-            "url": "https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html"
+            "favicon": "https://developer.salesforce.com/ns-assets/favicon.ico",
+            "id": "https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/client-connection-overview.html",
+            "image": "https://a.sfdcstatic.com/shared/images/c360-nav/icons.svg#hamburger-blue",
+            "title": "Connect MCP Clients | Hosted MCP Servers | Salesforce Developers",
+            "url": "https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/client-connection-overview.html"
           },
           {
             "author": "Salesforce",
@@ -238,6 +232,12 @@
             "image": "https://a.sfdcstatic.com/shared/images/c360-nav/icons.svg#hamburger-blue",
             "title": "Salesforce Hosted MCP Servers | Hosted MCP Servers | Salesforce Developers",
             "url": "https://developer.salesforce.com/docs/platform/hosted-mcp-servers/overview"
+          },
+          {
+            "author": "Salesforce",
+            "id": "https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html",
+            "title": "Get Started | Hosted MCP Servers | Salesforce Developers",
+            "url": "https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html"
           },
           {
             "author": "Salesforce",
@@ -282,8 +282,14 @@
     },
     "verification_search": {
       "data": {
-        "answer": "The Podio Model Context Protocol (MCP) server allows AI assistants to interact with Podio data [1][2]. You can connect using shared default credentials without an API key, or by generating your own Podio API key for better security [1][2].\n\nTo use your own credentials, generate a Client ID and Client Secret at your Podio account settings under the API Keys tab, setting the Redirect URL to https://mcp.podio.com [1][2]. In your AI platform's OAuth configuration, use these endpoints:\n\n- Authorization URL: https://mcp.podio.com/oauth/authorize\n- Token URL: https://mcp.podio.com/oauth/token [1][2]",
+        "answer": "Podio\u2019s official auth uses OAuth2. For your own app, register to get Client ID and Client Secret, then send the access token as header Authorization: OAuth2 ACCESS_TOKEN. Refresh by POST https://api.podio.com/oauth/token/v2 with JSON {grant_type:\"refresh_token\", client_id:\"YOUR_APP_ID\", client_secret:\"YOUR_APP_SECRET\", refresh_token:\"REFRESH_TOKEN\"} [1]. For Podio MCP, the server is at https://mcp.podio.com/mcp with Authorization URL https://mcp.podio.com/oauth/authorize and Token URL https://mcp.podio.com/oauth/token; you can use shared default credentials (no client ID/secret) or your own Podio API key (use your Client ID/Secret) [2][3].",
         "citations": [
+          {
+            "id": "https://developers.podio.com/authentication",
+            "image": "https://dszkox6mytr3m.cloudfront.net/images/podiologo_og.png",
+            "title": "Authentication - Podio API Documentation",
+            "url": "https://developers.podio.com/authentication"
+          },
           {
             "favicon": "https://support.sharefile.com/resource/ProgressFavicon",
             "id": "https://support.sharefile.com/s/article/Podio-MCP-Server-Integration-Guide-ShareFile-1778762090571",
@@ -295,12 +301,6 @@
             "id": "https://www.progress.com/podio/documentation/using-podio/podio-mcp-server",
             "title": "Podio MCP Server \u2014 Integration Guide",
             "url": "https://www.progress.com/podio/documentation/using-podio/podio-mcp-server"
-          },
-          {
-            "id": "https://developers.podio.com/authentication",
-            "image": "https://dszkox6mytr3m.cloudfront.net/images/podiologo_og.png",
-            "title": "Authentication - Podio API Documentation",
-            "url": "https://developers.podio.com/authentication"
           },
           {
             "id": "https://developers.podio.com/api-key",
@@ -449,23 +449,12 @@
     },
     "verification_search": {
       "data": {
-        "answer": "Discord does not have a specific API feature called MCP credentials. Authentication for Discord applications is handled primarily through OAuth2 or Bot tokens [1][2].\n\nTo authenticate, you must register an application in the Discord Developer Portal to obtain a Client ID, Client Secret, and Bot Token [1][3]. You can then use these to authenticate via:\n\nOAuth2: Use the authorization code grant or client credentials flow by interacting with the token endpoint at https://discord.com/api/oauth2/token [1].\n\nBot Tokens: Use your bot token in the Authorization header as `Authorization: Bot <TOKEN>` [2][4].\n\nProvisional Accounts: For game integrations, you can use the Bot Token Endpoint at https://discord.com/api/v10/partner-sdk/token/bot to exchange external user IDs for access tokens [5].",
+        "answer": "Discord authentication uses either your bot token (from the Bot page) or OAuth2. For API calls with OAuth2, use the Authorization header: \u201cAuthorization: Bearer <access_token>\u201d [1][2]. To exchange an OAuth2 authorization code for a token, POST to https://discord.com/api/oauth2/token with grant_type=authorization_code, code, redirect_uri, and (per docs) include client_id/client_secret via HTTP Basic or form data [3][4]. For client-credentials (bot testing), POST to https://discord.com/api/oauth2/token with grant_type=client_credentials using HTTP Basic with client_id/client_secret [3]. For RPC, call AUTHORIZE to get a code, then exchange via /oauth2/token [4].",
         "citations": [
-          {
-            "id": "https://docs.discord.com/developers/topics/oauth2",
-            "image": "https://discord.mintlify.app/mintlify-assets/_next/image?url=%2F_mintlify%2Fapi%2Fog%3Fdivision%3DAPI%2BReference%26title%3DOAuth2%26theme%3D57157ad2a2a135bdf7ff8db9&w=1200&q=100",
-            "title": "OAuth2 - Documentation - Discord",
-            "url": "https://docs.discord.com/developers/topics/oauth2"
-          },
           {
             "id": "https://github.com/discord/discord-api-docs/blob/e3770eb5/developers/reference.mdx",
             "title": "developers/reference.mdx",
             "url": "https://github.com/discord/discord-api-docs/blob/e3770eb5/developers/reference.mdx"
-          },
-          {
-            "id": "https://docs.discord.com/developers/quick-start/getting-started",
-            "title": "",
-            "url": "https://docs.discord.com/developers/quick-start/getting-started"
           },
           {
             "id": "https://github.com/discord/discord-api-docs/blob/f5f9f1cb/developers/reference.mdx",
@@ -473,14 +462,20 @@
             "url": "https://github.com/discord/discord-api-docs/blob/f5f9f1cb/developers/reference.mdx"
           },
           {
-            "id": "https://docs.discord.com/developers/discord-social-sdk/development-guides/provisional-accounts/bot-token-endpoint",
-            "title": "",
-            "url": "https://docs.discord.com/developers/discord-social-sdk/development-guides/provisional-accounts/bot-token-endpoint"
+            "id": "https://docs.discord.com/developers/topics/oauth2",
+            "image": "https://discord.mintlify.app/mintlify-assets/_next/image?url=%2F_mintlify%2Fapi%2Fog%3Fdivision%3DAPI%2BReference%26title%3DOAuth2%26theme%3D57157ad2a2a135bdf7ff8db9&w=1200&q=100",
+            "title": "OAuth2 - Documentation - Discord",
+            "url": "https://docs.discord.com/developers/topics/oauth2"
           },
           {
             "id": "https://docs.discord.com/developers/topics/rpc",
             "title": "RPC",
             "url": "https://docs.discord.com/developers/topics/rpc"
+          },
+          {
+            "id": "https://docs.discord.com/developers/quick-start/getting-started",
+            "title": "",
+            "url": "https://docs.discord.com/developers/quick-start/getting-started"
           },
           {
             "id": "https://docs.discord.com/developers/discord-social-sdk/development-guides/account-linking-with-discord",
@@ -491,6 +486,11 @@
             "id": "https://docs.discord.com/developers/discord-social-sdk/development-guides/provisional-accounts/external-credentials-exchange",
             "title": "",
             "url": "https://docs.discord.com/developers/discord-social-sdk/development-guides/provisional-accounts/external-credentials-exchange"
+          },
+          {
+            "id": "https://docs.discord.com/developers/discord-social-sdk/development-guides/provisional-accounts/bot-token-endpoint",
+            "title": "",
+            "url": "https://docs.discord.com/developers/discord-social-sdk/development-guides/provisional-accounts/bot-token-endpoint"
           }
         ]
       },
@@ -529,7 +529,7 @@
     },
     "verification_search": {
       "data": {
-        "answer": "DataForSEO uses Basic Authentication for its API and Model Context Protocol (MCP) server [1][2]. You must use your unique API login and password, which are distinct from your dashboard account credentials and can be found in the API Access section of your DataForSEO account [3][4].\n\nFor standard API requests, include an Authorization header in the format: `Authorization: Basic <base64_encoded_credentials>`, where the encoded string is your `login:password` [1][4].\n\nFor MCP server configurations, you can provide credentials via environment variables (`DATAFORSEO_USERNAME` and `DATAFORSEO_PASSWORD`) or by passing the Base64-encoded Basic Auth header directly in your client's configuration [2][5][6].",
+        "answer": "DataForSEO uses Basic Authentication for API access: send your API credentials as a Base64-encoded \u201clogin:password\u201d in the Authorization header, e.g. Authorization: Basic bG9naW46cGFzc3dvcmQ= [1]. The official DataForSEO MCP server uses the remote endpoint https://mcp.dataforseo.com/v3/mcp and can be configured either by custom headers with that same Basic token, or via env vars DATAFORSEO_USERNAME and DATAFORSEO_PASSWORD. Example (env): DATAFORSEO_USERNAME=your_api_login, DATAFORSEO_PASSWORD=your_api_password [2][3].",
         "citations": [
           {
             "id": "https://docs.dataforseo.com/v3/auth/",
@@ -545,20 +545,6 @@
             "url": "https://dataforseo.com/model-context-protocol"
           },
           {
-            "id": "https://dataforseo.com/help-center/setting-up-the-official-dataforseo-mcp-server-simple-guide",
-            "image": "https://dataforseo.com/wp-content/uploads/2022/04/ukr-logo_429.png",
-            "publishedDate": "2025-05-01T00:00:00.000Z",
-            "title": "Setting Up the Official DataForSEO MCP Server: Simple Guide \u2013 DataForSEO",
-            "url": "https://dataforseo.com/help-center/setting-up-the-official-dataforseo-mcp-server-simple-guide"
-          },
-          {
-            "id": "https://dataforseo.com/blog/a-kickstart-guide-to-using-dataforseo-apis",
-            "image": "https://dataforseo.com/wp-content/uploads/2024/02/a-kickstart-guide-to-dataforseo-api.jpg",
-            "publishedDate": "2024-02-02T12:41:29.000Z",
-            "title": "A Kickstart Guide to Using DataForSEO APIs \u2013 DataForSEO",
-            "url": "https://dataforseo.com/blog/a-kickstart-guide-to-using-dataforseo-apis"
-          },
-          {
             "author": "dataforseo",
             "id": "https://github.com/dataforseo/mcp-server-typescript",
             "image": "https://opengraph.githubassets.com/6a615c51908062c98b15716fd99e9e5756b052fdb553d2fb09efc2c1e72d26de/dataforseo/mcp-server-typescript",
@@ -567,15 +553,29 @@
             "url": "https://github.com/dataforseo/mcp-server-typescript"
           },
           {
-            "id": "https://github.com/dataforseo/mcp-server-typescript/blob/v3-mcp/SKILL.md",
-            "title": "SKILL.md",
-            "url": "https://github.com/dataforseo/mcp-server-typescript/blob/v3-mcp/SKILL.md"
+            "id": "https://dataforseo.com/help-center/setting-up-the-official-dataforseo-mcp-server-simple-guide",
+            "image": "https://dataforseo.com/wp-content/uploads/2022/04/ukr-logo_429.png",
+            "publishedDate": "2025-05-01T00:00:00.000Z",
+            "title": "Setting Up the Official DataForSEO MCP Server: Simple Guide \u2013 DataForSEO",
+            "url": "https://dataforseo.com/help-center/setting-up-the-official-dataforseo-mcp-server-simple-guide"
           },
           {
             "id": "https://dataforseo.com/help-center/how-to-connect-the-official-dataforseo-mcp-server-to-chatgpt-simple-guide",
             "image": "https://dataforseo.com/wp-content/uploads/2025/08/ChatGPT-Dashboard-1500x731.png",
             "title": "How to Connect the Official DataForSEO MCP Server to ChatGPT: Simple Guide \u2013 DataForSEO",
             "url": "https://dataforseo.com/help-center/how-to-connect-the-official-dataforseo-mcp-server-to-chatgpt-simple-guide"
+          },
+          {
+            "id": "https://github.com/dataforseo/mcp-server-typescript/blob/v3-mcp/SKILL.md",
+            "title": "SKILL.md",
+            "url": "https://github.com/dataforseo/mcp-server-typescript/blob/v3-mcp/SKILL.md"
+          },
+          {
+            "id": "https://dataforseo.com/blog/a-kickstart-guide-to-using-dataforseo-apis",
+            "image": "https://dataforseo.com/wp-content/uploads/2024/02/a-kickstart-guide-to-dataforseo-api.jpg",
+            "publishedDate": "2024-02-02T12:41:29.000Z",
+            "title": "A Kickstart Guide to Using DataForSEO APIs \u2013 DataForSEO",
+            "url": "https://dataforseo.com/blog/a-kickstart-guide-to-using-dataforseo-apis"
           },
           {
             "id": "https://dataforseo.com/help-center/how-to-connect-and-use-the-dataforseo-mcp-server-with-chatgpt-work-and-codex-cli",
@@ -618,12 +618,17 @@
     },
     "verification_search": {
       "data": {
-        "answer": "Firecrawl provides two primary ways to authenticate its Model Context Protocol (MCP) server: OAuth and API keys. For interactive clients, use the OAuth server URL `https://mcp.firecrawl.dev/v2/mcp-oauth`, which triggers a browser-based sign-in flow. For automated scripts, servers, or CI environments, use the base URL `https://mcp.firecrawl.dev/v2/mcp` and include your API key in the request headers as `Authorization: Bearer <FIRECRAWL_API_KEY>`. Never include credentials directly in the URL. If you are using a keyless connection, you are limited to the search, scrape, and parse tools.",
+        "answer": "For Firecrawl\u2019s MCP authentication, use one of these server URLs. Keyless: https://mcp.firecrawl.dev/v2/mcp (no Authorization needed for search/scrape/parse; rate-limited) [1][2]. OAuth (interactive): https://mcp.firecrawl.dev/v2/mcp-oauth (your MCP client starts browser sign-in; tokens are issued as fco_\u2026 and sent as Authorization: Bearer <token>) [3][2]. API key (unattended/CI): keep server URL https://mcp.firecrawl.dev/v2/mcp and send Authorization: Bearer <FIRECRAWL_API_KEY> in client headers [4][2].",
         "citations": [
           {
-            "id": "https://docs.firecrawl.dev/mcp-server",
+            "id": "https://docs.firecrawl.dev/introduction",
             "title": "",
-            "url": "https://docs.firecrawl.dev/mcp-server"
+            "url": "https://docs.firecrawl.dev/introduction"
+          },
+          {
+            "id": "http://github.com/firecrawl/firecrawl-mcp-server",
+            "title": "firecrawl/firecrawl-mcp-server",
+            "url": "http://github.com/firecrawl/firecrawl-mcp-server"
           },
           {
             "id": "https://docs.firecrawl.dev/developer-guides/mcp-setup-guides/oauth",
@@ -631,9 +636,9 @@
             "url": "https://docs.firecrawl.dev/developer-guides/mcp-setup-guides/oauth"
           },
           {
-            "id": "https://docs.firecrawl.dev/introduction",
+            "id": "https://docs.firecrawl.dev/mcp-server",
             "title": "",
-            "url": "https://docs.firecrawl.dev/introduction"
+            "url": "https://docs.firecrawl.dev/mcp-server"
           },
           {
             "id": "https://docs.firecrawl.dev/mcp-server/tools",
@@ -644,11 +649,6 @@
             "id": "https://firecrawl.mintlify.app/api-reference/v2-introduction",
             "title": "",
             "url": "https://firecrawl.mintlify.app/api-reference/v2-introduction"
-          },
-          {
-            "id": "http://github.com/firecrawl/firecrawl-mcp-server",
-            "title": "firecrawl/firecrawl-mcp-server",
-            "url": "http://github.com/firecrawl/firecrawl-mcp-server"
           },
           {
             "id": "https://docs.firecrawl.dev/developer-guides/llm-sdks-and-frameworks/google-adk",
@@ -695,37 +695,17 @@
     },
     "verification_search": {
       "data": {
-        "answer": "To authenticate GitHub\u2019s official Developer REST API, send an access token in the HTTP Authorization header (fine-grained PAT/classic PAT, GitHub App/JWT, or GITHUB_TOKEN for GitHub Actions) [1]. For the GitHub remote MCP server, requests to https://api.githubcopilot.com/mcp/ must include an Authorization header; the server supports OAuth one-click by default, or you can manually use a PAT as Bearer YOUR_GITHUB_PAT in the MCP host config [2][3]. For MCP connection: use Authorization: Bearer <token> [3].",
+        "answer": "The GitHub Model Context Protocol (MCP) server supports two primary authentication methods: OAuth and Personal Access Tokens (PATs) [1][2].\n\nFor the remote GitHub MCP server (hosted at https://api.githubcopilot.com/mcp/), OAuth is the default and recommended method, allowing for a one-click sign-in experience within supported IDEs [1][3]. If you prefer using a PAT, you can manually configure it by adding an Authorization header to your MCP server configuration [1][2].\n\n```json\n{\n  \"servers\": {\n    \"github\": {\n      \"url\": \"https://api.githubcopilot.com/mcp/\",\n      \"requestInit\": {\n        \"headers\": {\n          \"Authorization\": \"Bearer YOUR_GITHUB_PAT\"\n        }\n      }\n    }\n  }\n}\n```\n\nFor local (stdio) MCP server deployments, OAuth is supported via a browser-based flow that keeps tokens in memory [4][2]. You can also use a PAT by setting the `GITHUB_PERSONAL_ACCESS_TOKEN` environment variable, which takes precedence over OAuth [4][2]. When using your own OAuth or GitHub App for custom deployments, you must provide the client ID and secret via command-line flags or environment variables [4].",
         "citations": [
-          {
-            "id": "https://docs.github.com/en/rest/authentication/authenticating-to-the-rest-api?apiVersion=2026-03-10",
-            "title": "Authenticating to the REST API",
-            "url": "https://docs.github.com/en/rest/authentication/authenticating-to-the-rest-api?apiVersion=2026-03-10"
-          },
           {
             "id": "https://docs.github.com/en/enterprise-cloud@latest/copilot/how-tos/provide-context/use-mcp-in-your-ide/set-up-the-github-mcp-server",
             "title": "Setting up the GitHub MCP Server",
             "url": "https://docs.github.com/en/enterprise-cloud@latest/copilot/how-tos/provide-context/use-mcp-in-your-ide/set-up-the-github-mcp-server"
           },
           {
-            "id": "https://github.com/github/github-mcp-server/blob/main/docs/host-integration.md",
-            "title": "docs/host-integration.md",
-            "url": "https://github.com/github/github-mcp-server/blob/main/docs/host-integration.md"
-          },
-          {
-            "id": "https://github.com/github/github-mcp-server/blob/main/docs/oauth-login.md",
-            "title": "docs/oauth-login.md",
-            "url": "https://github.com/github/github-mcp-server/blob/main/docs/oauth-login.md"
-          },
-          {
             "id": "https://github.com/github/github-mcp-server",
             "title": "github/github-mcp-server",
             "url": "https://github.com/github/github-mcp-server"
-          },
-          {
-            "id": "https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md",
-            "title": "docs/remote-server.md",
-            "url": "https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md"
           },
           {
             "author": "Andrea Griffiths",
@@ -734,6 +714,26 @@
             "publishedDate": "2025-07-30T16:00:00.000Z",
             "title": "A practical guide on how to use the GitHub MCP server - The GitHub Blog",
             "url": "https://github.blog/ai-and-ml/generative-ai/a-practical-guide-on-how-to-use-the-github-mcp-server/"
+          },
+          {
+            "id": "https://github.com/github/github-mcp-server/blob/main/docs/oauth-login.md",
+            "title": "docs/oauth-login.md",
+            "url": "https://github.com/github/github-mcp-server/blob/main/docs/oauth-login.md"
+          },
+          {
+            "id": "https://docs.github.com/en/rest/authentication/authenticating-to-the-rest-api?apiVersion=2026-03-10",
+            "title": "Authenticating to the REST API",
+            "url": "https://docs.github.com/en/rest/authentication/authenticating-to-the-rest-api?apiVersion=2026-03-10"
+          },
+          {
+            "id": "https://github.com/github/github-mcp-server/blob/main/docs/host-integration.md",
+            "title": "docs/host-integration.md",
+            "url": "https://github.com/github/github-mcp-server/blob/main/docs/host-integration.md"
+          },
+          {
+            "id": "https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md",
+            "title": "docs/remote-server.md",
+            "url": "https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md"
           },
           {
             "id": "https://github.com/github/docs/blob/main/content/copilot/how-tos/provide-context/use-mcp/use-the-github-mcp-server.md",
@@ -775,7 +775,7 @@
     },
     "verification_search": {
       "data": {
-        "answer": "Neo4j MCP HTTP transport supports two per-request auth methods: Bearer token (for Neo4j Enterprise/Aura with SSO/OAuth/OIDC) and Basic auth (username/password). Configure your MCP client to send an Authorization header via mcp.json: Bearer uses \u201cAuthorization: Bearer <token>\u201d and Basic uses \u201cAuthorization: Basic <base64(username:password)>\u201d (base64 of \u201cneo4j:password\u201d). The MCP server reads credentials from the Authorization header by default; you can override the header name with NEO4J_HTTP_AUTH_HEADER_NAME. Sources: [1][2]",
+        "answer": "Neo4j MCP authentication (HTTP transport) uses per-request credentials via the HTTP headers. Configure your MCP client to send either Authorization: Bearer <token> (for Neo4j Enterprise/Aura with OAuth/SSO; token is not base64) or Authorization: Basic <base64(username:password)>. In mcp.json, set the HTTP server to type \"http\" and provide the Authorization header; by default the MCP server reads Authorization, but you can override it with NEO4J_HTTP_AUTH_HEADER_NAME or --neo4j-http-auth-header-name. Community Edition doesn\u2019t support bearer, use Basic Auth. [1][2]",
         "citations": [
           {
             "id": "https://neo4j.com/docs/mcp/current/authentication/",
@@ -852,7 +852,7 @@
     },
     "verification_search": {
       "data": {
-        "answer": "Use Dev Dashboard \u201cCatalogs\u201d to create your MCP/API credentials (client ID + client secret) [1][2]. At runtime, exchange them for a bearer JWT by POSTing to https://api.shopify.com/auth/access_token with JSON { \"client_id\": \"...\", \"client_secret\": \"...\", \"grant_type\": \"client_credentials\" }; the response returns access_token (60-min TTL) and scopes [1][2][3]. Use the token in MCP calls as Authorization: Bearer {token}, and include JSON-RPC meta.arguments.ucp-agent.profile (your /.well-known/ucp profile URI) [2][3].",
+        "answer": "To authenticate Shopify MCP requests using \u201cAPI credentials\u201d from Dev Dashboard, generate a client ID + client secret, then exchange them for a bearer (JWT) at runtime with a client-credentials grant. POST https://api.shopify.com/auth/access_token with JSON { \"client_id\": \"...\", \"client_secret\": \"...\", \"grant_type\": \"client_credentials\" } and read response.access_token; include it as Authorization: Bearer {token} on subsequent MCP calls to https://{shop-domain}/api/ucp/mcp. Tokens expire after ~60 minutes, so mint fresh tokens each run. [1][2][3]",
         "citations": [
           {
             "id": "https://shopify.dev/docs/agents/get-started/authentication",
@@ -935,8 +935,18 @@
     },
     "verification_search": {
       "data": {
-        "answer": "Squarespace authentication for Commerce APIs uses either an API key or an OAuth 2.0 access token, both sent as an Authorization: Bearer YOUR_API_KEY_OR_OAUTH_TOKEN header (with a User-Agent too) [1]. For MCP specifically, use the remote server at https://mcp.squarespace.com/mcp and no authentication (no API key/OAuth) is required [2][3]. For OAuth: register to get your_client_id/your_client_secret, call GET https://login.squarespace.com/api/1/login/oauth/provider/authorize (with client_id, redirect_uri, scope, state), then POST https://login.squarespace.com/api/1/login/oauth/provider/tokens to get an access_token [4].",
+        "answer": "Squarespace authentication for Commerce APIs uses either an API key or an OAuth 2.0 access token. For OAuth: register to get client_id/client_secret, then run GET https://login.squarespace.com/api/1/login/oauth/provider/authorize with client_id, redirect_uri, scope, and state; exchange the returned code at POST https://login.squarespace.com/api/1/login/oauth/provider/tokens (Authorization: Basic base64(client_id:client_secret), Content-Type required). Use the resulting token in requests as Authorization: Bearer YOUR_API_KEY_OR_OAUTH_TOKEN (plus User-Agent). MCP server access is different: https://mcp.squarespace.com/mcp requires no authentication. [1][2][3][4]",
         "citations": [
+          {
+            "id": "https://developers.squarespace.com/commerce-apis/authentication-and-permissions",
+            "title": "Squarespace Developer Platform: APIs, Apps, and Docs",
+            "url": "https://developers.squarespace.com/commerce-apis/authentication-and-permissions"
+          },
+          {
+            "id": "https://developers.squarespace.com/commerce-apis/oauth",
+            "title": "Squarespace Developer Platform: APIs, Apps, and Docs",
+            "url": "https://developers.squarespace.com/commerce-apis/oauth"
+          },
           {
             "favicon": "https://developers.squarespace.com/favicon.ico",
             "id": "https://developers.squarespace.com/commerce-apis/making-requests",
@@ -955,16 +965,6 @@
             "image": "https://developers-preview.squarespace.com/assets/logos/sqsp-dev-logo-on-light.svg",
             "title": "Squarespace Developer Platform: APIs, Apps, and Docs",
             "url": "https://developers-preview.squarespace.com/mcp/mcp"
-          },
-          {
-            "id": "https://developers.squarespace.com/commerce-apis/oauth",
-            "title": "Squarespace Developer Platform: APIs, Apps, and Docs",
-            "url": "https://developers.squarespace.com/commerce-apis/oauth"
-          },
-          {
-            "id": "https://developers.squarespace.com/commerce-apis/authentication-and-permissions",
-            "title": "Squarespace Developer Platform: APIs, Apps, and Docs",
-            "url": "https://developers.squarespace.com/commerce-apis/authentication-and-permissions"
           },
           {
             "id": "https://developers.squarespace.com/changes/self-service-oauth-credential-management",
@@ -1021,7 +1021,7 @@
     },
     "verification_search": {
       "data": {
-        "answer": "Stripe\u2019s Model Context Protocol (MCP) server supports two primary authentication methods: OAuth and restricted API keys [1][2]. OAuth is the recommended approach as it provides granular permissions and avoids sharing secret keys [1][2]. When using an MCP client that supports OAuth, the client will open a consent page to authorize access [1][2].\n\nIf your client does not support OAuth, you can authenticate using a restricted API key passed as a bearer token in the Authorization header [1][2].\n\nExample configuration for a client:\n\n```json\n{\n  \"stripe\": {\n    \"url\": \"https://mcp.stripe.com\",\n    \"headers\": {\n      \"Authorization\": \"Bearer <restricted_api_key>\"\n    }\n  }\n}\n```\n\nFor connected accounts, pass the Stripe-Account header alongside your restricted API key [1].",
+        "answer": "Stripe\u2019s MCP remote server is https://mcp.stripe.com. Authenticate with OAuth (recommended): the MCP client opens Stripe\u2019s OAuth consent flow; manage/revoke sessions in the Stripe Dashboard [1][2][3]. If your client can\u2019t do OAuth, use a restricted API key as a Bearer token in the HTTP Authorization header, or via an env var for the MCP CLI config: Authorization: Bearer <restricted_api_key> [1][4][2][3]. For connected accounts, also set Stripe-Account: <acct_...> [1]. Stripe API keys use HTTP Basic Auth for normal API calls [4].",
         "citations": [
           {
             "id": "https://docs.stripe.com/mcp",
@@ -1032,6 +1032,11 @@
             "id": "https://docs.stripe.com/treasury/agents",
             "title": "",
             "url": "https://docs.stripe.com/treasury/agents"
+          },
+          {
+            "id": "https://docs.stripe.com/mcp.md",
+            "title": "Mcp",
+            "url": "https://docs.stripe.com/mcp.md"
           },
           {
             "id": "https://docs.stripe.com/api/authentication?api-version=2026-04-22.dahlia",
@@ -1061,11 +1066,6 @@
             "id": "https://docs.stripe.com/agentic-commerce/monetize-mcp",
             "title": "",
             "url": "https://docs.stripe.com/agentic-commerce/monetize-mcp"
-          },
-          {
-            "id": "https://cdn.cdata.com/help/BOM/mcp/pg_connectionmcp.htm",
-            "title": "",
-            "url": "https://cdn.cdata.com/help/BOM/mcp/pg_connectionmcp.htm"
           }
         ]
       },
@@ -1103,7 +1103,7 @@
     },
     "verification_search": {
       "data": {
-        "answer": "QuickBooks Online authentication uses Intuit OAuth 2.0 (no separate \u201cMCP credentials\u201d beyond your Intuit app\u2019s OAuth credentials). Create an app in the Intuit Developer Portal, then use its Client ID and Client Secret plus a redirect URI; complete the OAuth handshake in a browser to obtain a refresh token. For the QuickBooks Online MCP server, set these env vars: QUICKBOOKS_CLIENT_ID, QUICKBOOKS_CLIENT_SECRET, QUICKBOOKS_REFRESH_TOKEN, QUICKBOOKS_REALM_ID, and QUICKBOOKS_ENVIRONMENT (sandbox or production) [1]. OAuth details: [2][3].",
+        "answer": "QuickBooks Online authentication uses Intuit OAuth 2.0 credentials: your app\u2019s Client ID and Client secret from the Intuit Developer Portal Keys & OAuth/Keys & Credentials, plus an OAuth refresh token and realmId. For OAuth you set redirect URIs in the portal (sandbox can use http://localhost:8000/callback; production must be a public HTTPS URL) and complete a browser-based OAuth handshake; afterward, you authenticate API calls with bearer access tokens and refresh tokens. Use an MCP server like quickbooks-online-mcp-server by setting env vars: QUICKBOOKS_CLIENT_ID, QUICKBOOKS_CLIENT_SECRET, QUICKBOOKS_REFRESH_TOKEN, QUICKBOOKS_REALM_ID, QUICKBOOKS_ENVIRONMENT. [1][2]",
         "citations": [
           {
             "id": "https://github.com/intuit/quickbooks-online-mcp-server/blob/main/README.md",
@@ -1117,15 +1117,15 @@
             "url": "https://developer.intuit.com/app/developer/qbo/docs/develop/authentication-and-authorization/oauth-2.0"
           },
           {
-            "id": "https://developer.intuit.com/app/developer/qbo/docs/develop/sdks-and-samples-collections/php/authorization",
-            "title": "Authorization",
-            "url": "https://developer.intuit.com/app/developer/qbo/docs/develop/sdks-and-samples-collections/php/authorization"
-          },
-          {
             "id": "https://developer.intuit.com/app/developer/qbo/docs/develop/authentication-and-authorization",
             "publishedDate": "2019-09-16T13:01:03.000Z",
             "title": "Intuit Developer",
             "url": "https://developer.intuit.com/app/developer/qbo/docs/develop/authentication-and-authorization"
+          },
+          {
+            "id": "https://developer.intuit.com/app/developer/qbo/docs/develop/sdks-and-samples-collections/php/authorization",
+            "title": "Authorization",
+            "url": "https://developer.intuit.com/app/developer/qbo/docs/develop/sdks-and-samples-collections/php/authorization"
           },
           {
             "id": "https://developer.intuit.com/app/developer/qbpayments/docs/develop/authentication-and-authorization/oauth-2.0",
@@ -1186,7 +1186,7 @@
     },
     "verification_search": {
       "data": {
-        "answer": "The Google Ads MCP server uses your Google Ads developer token plus OAuth 2.0 or Application Default Credentials to authenticate. Provide these credentials to the MCP server via environment variables: GOOGLE_PROJECT_ID, GOOGLE_ADS_DEVELOPER_TOKEN (22-character developer token), and either GOOGLE_ADS_MCP_OAUTH_CLIENT_ID + GOOGLE_ADS_MCP_OAUTH_CLIENT_SECRET (FastMCP OAuth proxy) or ADC via GOOGLE_APPLICATION_CREDENTIALS (must include scope https://www.googleapis.com/auth/adwords). For manager accounts, add login-customer-id (manager Customer ID) when making Google Ads API calls. Sources: [1][2][3]",
+        "answer": "Use the Google Ads MCP server\u2019s auth via environment variables and Google Ads API credentials. Set at minimum: GOOGLE_PROJECT_ID and GOOGLE_ADS_DEVELOPER_TOKEN (developer token required). For OAuth proxy auth, also set GOOGLE_ADS_MCP_OAUTH_CLIENT_ID and GOOGLE_ADS_MCP_OAUTH_CLIENT_SECRET. The server supports OAuth 2.0 or Application Default Credentials (ADC) / service accounts. Developer token is sent as developer-token on every Ads API call; OAuth access token goes in Authorization: Bearer; if acting as a manager, include login-customer-id. [1][2]",
         "citations": [
           {
             "id": "https://developers.google.com/google-ads/api/docs/developer-toolkit/mcp-server",
@@ -1202,16 +1202,16 @@
             "url": "https://developers.google.com/google-ads/api/rest/auth"
           },
           {
-            "id": "https://github.com/googleads/google-ads-mcp",
-            "title": "googleads/google-ads-mcp",
-            "url": "https://github.com/googleads/google-ads-mcp"
-          },
-          {
             "favicon": "https://www.gstatic.com/devrel-devsite/prod/v6c08f9bb601564cd99488472d05cdf6fb06f007f31b6552465782b15883ce123/developers/images/favicon-new.png",
             "id": "https://developers.google.com/google-ads/api/docs/oauth/credential-management",
             "image": "https://www.gstatic.com/devrel-devsite/prod/v6c08f9bb601564cd99488472d05cdf6fb06f007f31b6552465782b15883ce123/developers/images/opengraph/teal.png",
             "title": "Credential Management \u00a0|\u00a0 Google Ads API \u00a0|\u00a0 Google for Developers",
             "url": "https://developers.google.com/google-ads/api/docs/oauth/credential-management"
+          },
+          {
+            "id": "https://github.com/googleads/google-ads-mcp",
+            "title": "googleads/google-ads-mcp",
+            "url": "https://github.com/googleads/google-ads-mcp"
           },
           {
             "id": "https://docs.cloud.google.com/mcp/set-up-authentication-mcp-servers",
@@ -1439,27 +1439,17 @@
     },
     "verification_search": {
       "data": {
-        "answer": "To authenticate with the monday.com Model Context Protocol (MCP) server, you can use a personal API token or OAuth 2.0 [1].\n\nFor personal use, prototyping, or testing, use a personal API token [2]. Retrieve it by navigating to your profile picture, selecting Developers, and clicking My access tokens [2]. Pass this token in the Authorization header as a Bearer token [2]:\n\n```json\n{\n  \"mcpServers\": {\n    \"monday-mcp\": {\n      \"url\": \"https://mcp.monday.com/mcp\",\n      \"headers\": {\n        \"Authorization\": \"Bearer YOUR_API_TOKEN\"\n      }\n    }\n  }\n}\n```\n\nFor organizational control or public integrations, use an OAuth app to manage scopes and user access [3][4].",
+        "answer": "To authenticate monday.com\u2019s official MCP server, use either a personal API token (Bearer) or OAuth. For a personal token, get it from your monday.com account (Profile picture > Developers), then connect the MCP client to https://mcp.monday.com/mcp and send it as a Bearer token: Authorization: Bearer YOUR_API_TOKEN [1][2]. Your MCP tool calls execute as the authenticated user and are limited by their monday.com permissions [2]. Do not share tokens or commit them to version control [1].",
         "citations": [
-          {
-            "id": "https://developer.monday.com/api-reference/docs/integrate-with-monday-mcp",
-            "title": "",
-            "url": "https://developer.monday.com/api-reference/docs/integrate-with-monday-mcp"
-          },
           {
             "id": "https://developer.monday.com/api-reference/docs/mcp-api-token",
             "title": "",
             "url": "https://developer.monday.com/api-reference/docs/mcp-api-token"
           },
           {
-            "id": "https://developer.monday.com/api-reference/docs/control-mcp-access-with-oauth-app",
+            "id": "https://developer.monday.com/api-reference/docs/integrate-with-monday-mcp",
             "title": "",
-            "url": "https://developer.monday.com/api-reference/docs/control-mcp-access-with-oauth-app"
-          },
-          {
-            "id": "https://developer.monday.com/api-reference/docs/mcp-dynamic-client-registration",
-            "title": "",
-            "url": "https://developer.monday.com/api-reference/docs/mcp-dynamic-client-registration"
+            "url": "https://developer.monday.com/api-reference/docs/integrate-with-monday-mcp"
           },
           {
             "id": "https://developer.monday.com/api-reference/docs/authentication",
@@ -1468,9 +1458,19 @@
             "url": "https://developer.monday.com/api-reference/docs/authentication"
           },
           {
+            "id": "https://developer.monday.com/api-reference/docs/control-mcp-access-with-oauth-app",
+            "title": "",
+            "url": "https://developer.monday.com/api-reference/docs/control-mcp-access-with-oauth-app"
+          },
+          {
             "id": "https://developer.monday.com/api-reference/docs/monday-mcp-security-overview",
             "title": "",
             "url": "https://developer.monday.com/api-reference/docs/monday-mcp-security-overview"
+          },
+          {
+            "id": "https://developer.monday.com/api-reference/docs/mcp-dynamic-client-registration",
+            "title": "",
+            "url": "https://developer.monday.com/api-reference/docs/mcp-dynamic-client-registration"
           },
           {
             "id": "https://developer.monday.com/apps/docs/mondaycom-mcp-integration",
@@ -1518,7 +1518,7 @@
     },
     "verification_search": {
       "data": {
-        "answer": "Zendesk MCP server connections exclusively support OAuth 2.0 authentication [1][2]. When configuring an MCP connection in the Zendesk Admin Center, you must provide the Client ID and Client Secret for your MCP server [1][2]. If the external service requires a redirect or callback URL during OAuth app registration, use `https://zis.zendesk.com/api/services/zis/connections/oauth/callback` [1][2]. The Zendesk MCP client supports auto-discovery via standard well-known endpoints to identify authorization servers and scopes [1][2]. Stdio transport is not supported; only HTTP servers are compatible [1][2].",
+        "answer": "Zendesk MCP server connections use OAuth only (HTTP transport; not stdio) [1][2]. In Admin Center, add the MCP connection and, if prompted, enter the MCP server\u2019s OAuth Client ID and Client Secret, then complete the server\u2019s OAuth popup [1][2]. If the MCP server needs an OAuth app callback URL, use https://zis.zendesk.com/api/services/zis/connections/oauth/callback [1][2]. Zendesk API requests authenticate with an OAuth access token in the Authorization: Bearer {access_token} header [3].",
         "citations": [
           {
             "id": "https://support.zendesk.com/hc/en-us/articles/10497779528730-Connecting-to-MCP-servers-and-using-MCP-tools-in-action-flows",
@@ -1535,14 +1535,14 @@
             "url": "https://support.zendesk.com/hc/en-us/articles/10497779528730-Connecting-to-MCP-servers-and-using-MCP-tools-in-action-flows-EAP"
           },
           {
-            "id": "https://developer.zendesk.com/documentation/authentication/api-tokens-to-oauth/",
-            "title": "Using OAuth to authenticate API requests | Zendesk Developer Docs",
-            "url": "https://developer.zendesk.com/documentation/authentication/api-tokens-to-oauth/"
-          },
-          {
             "id": "https://developer.zendesk.com/api-reference/introduction/security-and-auth/",
             "title": "Security and authentication | Zendesk Developer Docs",
             "url": "https://developer.zendesk.com/api-reference/introduction/security-and-auth/"
+          },
+          {
+            "id": "https://developer.zendesk.com/documentation/authentication/api-tokens-to-oauth/",
+            "title": "Using OAuth to authenticate API requests | Zendesk Developer Docs",
+            "url": "https://developer.zendesk.com/documentation/authentication/api-tokens-to-oauth/"
           },
           {
             "id": "https://developer.zendesk.com/documentation/authentication/",
@@ -1602,8 +1602,16 @@
     },
     "verification_search": {
       "data": {
-        "answer": "LiveAgent provides a built-in Model Context Protocol (MCP) server to connect AI tools directly to your account [1][2]. You can authenticate your MCP client using either a Bearer token or OAuth 2.1 [1].\n\nTo generate a Bearer token, navigate to your agent profile, select MCP in the left-hand menu, and click Generate token [1]. Copy this value immediately, as it cannot be retrieved later [1][3]. For OAuth 2.1, use the server URL https://YOURDOMAIN.ladesk.com/api/mcp; the client will automatically handle the discovery, redirection, and consent flow using PKCE [1][3].",
+        "answer": "LiveAgent authentication credentials differ by integration type. For the standard LiveAgent REST API v3, generate an API key in your account at Configuration > System > API, then authorize it in your API v3 Swagger page: https://YOURDOMAIN.ladesk.com/docs/api/v3/#/ using the needed scopes [1]. For MCP (Model Context Protocol), authenticate either with an MCP Bearer token (generate in your profile via avatar > Edit profile > MCP; token is shown only once) or with OAuth 2.1 (Authorization Code + PKCE) [2][3].",
         "citations": [
+          {
+            "favicon": "https://support.liveagent.com/themes/kb/montana/img/apple-touch-icon.png",
+            "id": "https://support.liveagent.com/567924-Documentation",
+            "image": "https://support.qualityunit.com/scripts/file.php?view=Y&file=o5eql8xh3a49pks116phydl8c4uhp07u",
+            "publishedDate": "2020-12-07T20:14:01.000Z",
+            "title": "Documentation",
+            "url": "https://support.liveagent.com/567924-Documentation"
+          },
           {
             "favicon": "https://support.liveagent.com/themes/kb/montana/img/apple-touch-icon.png",
             "id": "https://support.liveagent.com/647358-MCP-Integration-for-Agents",
@@ -1613,24 +1621,10 @@
             "url": "https://support.liveagent.com/647358-MCP-Integration-for-Agents"
           },
           {
-            "id": "https://support.liveagent.com/150554-AI-features",
-            "image": "https://support.qualityunit.com/themes/kb/minimalist/img/default_logo.png",
-            "title": "AI features",
-            "url": "https://support.liveagent.com/150554-AI-features"
-          },
-          {
             "id": "https://www.liveagent.com/features/mcp-server/",
             "image": "https://images.liveagent.com/images/landing-pages/mcp-server/mcp-hero-img.webp",
             "title": "Connect AI tools to LiveAgent with MCP | LiveAgent - Help Desk Software & Live Chat",
             "url": "https://www.liveagent.com/features/mcp-server/"
-          },
-          {
-            "favicon": "https://support.liveagent.com/themes/kb/montana/img/apple-touch-icon.png",
-            "id": "https://support.liveagent.com/567924-Documentation",
-            "image": "https://support.qualityunit.com/scripts/file.php?view=Y&file=o5eql8xh3a49pks116phydl8c4uhp07u",
-            "publishedDate": "2020-12-07T20:14:01.000Z",
-            "title": "Documentation",
-            "url": "https://support.liveagent.com/567924-Documentation"
           },
           {
             "id": "https://faq.liveagent.com/535002-LiveAgent-API-v1-vs-v3-Authentication-Differences-API-Key-Management-and-Resolving-403-Errors",
@@ -1645,6 +1639,12 @@
             "publishedDate": "2012-06-27T10:45:26.000Z",
             "title": "Complete API reference",
             "url": "https://support.liveagent.com/840770-Complete-API-reference"
+          },
+          {
+            "id": "https://support.liveagent.com/150554-AI-features",
+            "image": "https://support.qualityunit.com/themes/kb/minimalist/img/default_logo.png",
+            "title": "AI features",
+            "url": "https://support.liveagent.com/150554-AI-features"
           },
           {
             "id": "https://support.liveagent.com/578762-MCP-tools-reference",

@@ -91,12 +91,10 @@ For example:
     │   ├── processed/
     │   │   └── first_pass.json
     │   └── verified/
-    │       ├── sample20.json
     │       ├── second_pass.json
     │       └── human_verification.json
     ├── docs/
     │   └── research-rules.md
-    ├── prompts/
     ├── reports/
     │   └── case-study.html
     ├── src/
@@ -104,14 +102,15 @@ For example:
     │   ├── researcher.py
     │   ├── classifier.py
     │   ├── run_classifier.py
-    │   ├── verifier.py
     │   ├── verify_pass.py
-    │   ├── analyze.py
     │   └── build_report.py
-    ├── tests/
     ├── .env.example
     ├── .gitignore
     └── README.md
+
+`data/verified/sample20.json` is a local, gitignored intermediate input used by the
+verification script. It contains the 20-app sample used for the independent
+second-pass search and is intentionally not part of the public repository.
 
 ## Classification definitions
 
